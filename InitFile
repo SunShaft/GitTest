@@ -1,0 +1,81 @@
+此文件记录了关于deleted和new file这两种状态的一些测试，下文中‘文件‘就是此文件本身
+’-‘后面为实现前面的代码；前面有tab的是结果，以’=》‘开头的是解析或猜想
+
+测试项目：
+0. 无操作-无
+    Untracked files-无状态-红色
+1. 提交到stage-git add InitFile
+    Changes to be committed-new file-绿色
+2. 提交到history-git commit InitFile -m 'commit1'
+    不显示
+
+=====
+目前文件处于working dictionary，stage和history
+=====
+
+0. 修改working dictionary文件-vim InitFile
+    Changes not staged for commit-modified-红色
+1. 提交到stage-git add InitFile
+    Changes to be committed-modified-绿色
+2. 提交到history-git commit -m 'commit2'
+    不显示
+
+=====
+现在文件又存在全部3个区域中并且都一样
+=====
+
+0. 删除working dictionary文件-rm InitFile
+    Changes not staged for commit-deleted-红色
+    =》明明文件在stage但是依然是红色，而且提示是Changes not staged for commit
+1. 恢复working dictionary文件-git checkout -- InitFile然后再删除stage中的文件-git rm --cached InitFile
+    Changes to be committed-deleted-绿色
+    Untracked files-无状态-红色
+    =》为什么一个文件会有两个显示，而且为什么明明不在stage却是Changes to be committed且为绿色
+2. 删除working dictionary的文件-
+    Changes to be committed-deleted-绿色
+    =》和0一样的问题
+
+=====总结=====
+当文件在history中：
+1. 不在stage：
+    绿色的deleted状态
+2. 在stage：
+    红色的deleted状态
+3. 不在stage且不在working space：
+    额外显示红色的untrack提示
+=====猜想=====
+deleted状态表示删除这个操作本身，而非文件
+绿色的deleted表示删除这个文件的操作已经被stage了，而不是说这个文件在stage中
+因此当文件在stage而working space文件已经删除时，信息表示删除此文件的操作未被stage，反之亦然
+而untrack的判定则是代表文件本身不存在与stage中
+=====
+
+0. 修改文件-vim InitFile并提交-git add InitFile然后删除working dictionary文件
+    Changes not staged for commit-deleted-红色
+    =》deleted会覆盖modified，即使现在stage中的文件和history不一样
+
+1. 通过checkout复原working dictionary文件-git checkout -- InitFile
+    =》文件为修改后版本，说明checkout是从stage复原文件而非history（网上很多说是从history）
+
+2. 修改working dictionary文件使其和history一致
+    Changes to be committed-modified-绿色
+    Changes not staged for commit-modified-红色
+    =》第一行表示stage已经记录了一次修改，第二行表示仍然有一次修改为被记录
+
+3. 使stage与working dictionary和history一致-git add InitFile
+    无显示
+    
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
